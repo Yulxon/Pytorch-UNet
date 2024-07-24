@@ -20,6 +20,10 @@ def evaluate(net, dataloader, device, amp):
             image = image.to(device=device, dtype=torch.float32, memory_format=torch.channels_last)
             mask_true = mask_true.to(device=device, dtype=torch.long)
 
+            # Let the range of mask_true be [0, 1]
+            max_value = mask_true.max().item()
+            mask_true = mask_true / max_value
+
             # predict the mask
             mask_pred = net(image)
 
