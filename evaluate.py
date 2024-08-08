@@ -21,15 +21,16 @@ def evaluate(net, dataloader, device, amp):
             mask_true = mask_true.to(device=device, dtype=torch.long)
 
             # Let the range of mask_true be [0, 1]
-            max_value = mask_true.max().item()
-            mask_true = mask_true / max_value
+            # max_value = mask_true.max().item()
+            # mask_true = mask_true / max_value
+            mask_true[mask_true >= 1] = 1
 
             # predict the mask
             mask_pred = net(image)
 
             if net.n_classes == 1:
                 assert mask_true.min() >= 0 and mask_true.max() <= 1, 'True mask indices should be in [0, 1]'
-                mask_pred = (F.sigmoid(mask_pred) > 0.5).float()
+                mask_pred = (F.sigmoid(mask_pred.squeeze()) > 0.5).float()
                 # compute the Dice score
                 dice_score += dice_coeff(mask_pred, mask_true, reduce_batch_first=False)
             else:
